@@ -23,6 +23,9 @@ pd.set_option('display.max_colwidth', 200)
 
 # import wikipedia sentences
 candidate_sentences = pd.read_csv("wiki_sentences_v2.csv")
-print(andidate_sentences.shape)
+candidate_sentences.shape
 
 #print(candidate_sentences['sentence'].sample(5))
+
+test
+test
