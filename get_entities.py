@@ -17,17 +17,6 @@ import networkx as nx
 
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-
-
-pd.set_option('display.max_colwidth', 200)
-
-# import wikipedia sentences
-candidate_sentences = pd.read_csv("wiki_sentences_v2.csv")
-candidate_sentences.shape
-#print(candidate_sentences.shape)
-#print(candidate_sentences['sentence'].sample(5))
-import get_entities
-print(get_entities.get_entities("the film had 200 patents"))
 def get_entities(sent):
   ## chunk 1
   ent1 = ""
@@ -78,60 +67,3 @@ def get_entities(sent):
   #############################################################
 
   return [ent1.strip(), ent2.strip()]
-
-entity_pairs = []
-
-
-for i in tqdm(candidate_sentences["sentence"]):
-  entity_pairs.append(get_entities(i))
-
- 
-
-
-#print(entity_pairs[10:20])
-
-def get_relation(sent):
-
-  doc = nlp(sent)
-
-  # Matcher class object 
-  matcher = Matcher(nlp.vocab)
-
-  #define the pattern 
-  pattern = [{'DEP':'ROOT'}, 
-            {'DEP':'prep','OP':"?"},
-            {'DEP':'agent','OP':"?"},  
-            {'POS':'ADJ','OP':"?"}] 
-
-  matcher.add("matching_1", [pattern]) 
-
-  matches = matcher(doc)
-  k = len(matches) - 1
-
-  span = doc[matches[k][1]:matches[k][2]] 
-
-  return(span.text)
-  
-get_relation("John completed the task")
-
-relations = [get_relation(i) for i in tqdm(candidate_sentences['sentence'])]
-
-
-pd.Series(relations).value_counts()[:50]
-
-# extract subject
-source = [i[0] for i in entity_pairs] 
-# extract object
-target = [i[1] for i in entity_pairs] 
-
-
-kg_df = pd.DataFrame({'source':source, 'target':target, 'edge':relations})  
-# create a directed-graph from a dataframe
-G=nx.from_pandas_edgelist(kg_df[kg_df['edge']=="written by"], "source", "target", 
-                          edge_attr=True, create_using=nx.MultiDiGraph())
-
-
-plt.figure(figsize=(12,12))
-pos = nx.spring_layout(G, k = 0.5)
-nx.draw(G, with_labels=True, node_color='skyblue', node_size=1500, edge_cmap=plt.cm.Blues, pos = pos)
-plt.show()
